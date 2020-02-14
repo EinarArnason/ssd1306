@@ -1,6 +1,6 @@
 #include "SSD1306.h"
 
-SSD1306::SSD1306(unsigned char address, int width, int height) {
+SSD1306::LCD::LCD(unsigned char address, int width, int height) {
     this->address = address;
     this->width = width;
     this->height = height;
@@ -8,14 +8,14 @@ SSD1306::SSD1306(unsigned char address, int width, int height) {
     this->buffer = new unsigned char[bufferSize];
 }
 
-SSD1306::~SSD1306() {
+SSD1306::LCD::~LCD() {
     clearScreen();
     delete[] buffer;
     buffer = nullptr;
     close(i2c);
 }
 
-void SSD1306::init(const char* device) {
+void SSD1306::LCD::init(const char* device) {
     if ((i2c = open(device, O_RDWR)) < 0) {
         std::cout << "Failed to open i2c" << std::endl;
     }
@@ -60,14 +60,14 @@ void SSD1306::init(const char* device) {
     clearScreen();
 }
 
-void SSD1306::sendCommand(const unsigned char cmd) {
+void SSD1306::LCD::sendCommand(const unsigned char cmd) {
     unsigned char msg[] = {SSD1306_COMMAND, cmd};
     if (write(i2c, msg, sizeof(msg)) != sizeof(msg)) {
         std::cout << "Failed to write to i2c" << std::endl;
     }
 }
 
-void SSD1306::sendData(const unsigned char* data, int size) {
+void SSD1306::LCD::sendData(const unsigned char* data, int size) {
     for (int i = 0; i < size; ++i) {
         unsigned char msg[] = {SSD1306_DATA, data[i]};
         if (write(i2c, msg, sizeof(msg)) != sizeof(msg)) {
@@ -76,7 +76,7 @@ void SSD1306::sendData(const unsigned char* data, int size) {
     }
 }
 
-void SSD1306::drawXbitmap(const unsigned char* bitmap, int x, int y, int width,
+void SSD1306::LCD::drawXbitmap(const unsigned char* bitmap, int x, int y, int width,
                           int height) {
     // Align writing area
     setWritingArea(x, y, width, height);
@@ -86,7 +86,7 @@ void SSD1306::drawXbitmap(const unsigned char* bitmap, int x, int y, int width,
 
 // Writing area for text needs to be set up as textboxes with matching height of
 // the font
-void SSD1306::writeText(const char* text) {
+void SSD1306::LCD::writeText(const char* text) {
     for (; *text != '\0'; ++text) {
         int index = *text - 32;
         unsigned char* iterator = SANS_SERIF_16PX_POINTERS[index];
@@ -99,7 +99,7 @@ void SSD1306::writeText(const char* text) {
     }
 }
 
-void SSD1306::setWritingArea(int x, int y, int width, int height) {
+void SSD1306::LCD::setWritingArea(int x, int y, int width, int height) {
     sendCommand(SSD1306_COLUMNADDR);
     sendCommand(x);
     sendCommand(x + (width - 1));
@@ -109,11 +109,11 @@ void SSD1306::setWritingArea(int x, int y, int width, int height) {
     sendCommand(pageStart + (height / 8) - 1);
 }
 
-void SSD1306::clearScreen() {
+void SSD1306::LCD::clearScreen() {
     memset(buffer, 0x00, bufferSize);
     sendData(buffer, bufferSize);
 }
 
-int SSD1306::lcdWidth() { return width; }
+int SSD1306::LCD::lcdWidth() { return width; }
 
-int SSD1306::lcdHeight() { return height; }
+int SSD1306::LCD::lcdHeight() { return height; }
