@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Fonts/SansSerif16px.h"
+#include "I2C.h"
 #include <fcntl.h>
 #include <iostream>
 #include <linux/i2c-dev.h>
@@ -49,17 +50,16 @@ const unsigned char SSD1306_DATA = 0x40;
 namespace SSD1306 {
     class LCD {
       private:
-        int i2c;
-        unsigned char address;
+        I2C* i2c;
         int width;
         int height;
         unsigned char* buffer;
         int bufferSize;
 
       public:
-        LCD(unsigned char address, int width, int height);
+        LCD(I2C* i2c, int width, int height);
         ~LCD();
-        void init(const char* device);
+        void init();
         void sendData(const unsigned char* data, int size);
         void sendCommand(const unsigned char cmd);
         /*
