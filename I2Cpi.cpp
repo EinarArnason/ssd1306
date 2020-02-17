@@ -1,6 +1,6 @@
 #include "I2Cpi.h"
 
-SSD1306::I2Cpi::I2Cpi(const char* device, unsigned char address) {
+SSD1306::I2Cpi::I2Cpi(std::string device, unsigned char address) {
     this->device = device;
     this->address = address;
 }

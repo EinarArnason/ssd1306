@@ -14,7 +14,7 @@ namespace SSD1306 {
 
       public:
         TextBox();
-        TextBox(int pageStart, int pageEnd, int columnStart, int columnEnd);
+        TextBox(int x, int y, int width, int height);
         int x();
         int y();
         int width();

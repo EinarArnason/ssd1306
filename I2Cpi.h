@@ -4,7 +4,7 @@
 #include <fcntl.h>
 #include <iostream>
 #include <linux/i2c-dev.h>
-#include <string>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
@@ -16,7 +16,7 @@ namespace SSD1306 {
         unsigned char address;
 
       public:
-        I2Cpi(const char* device, unsigned char address);
+        I2Cpi(std::string device, unsigned char address);
         ~I2Cpi();
         // Returns true if initialization is successful
         bool init();

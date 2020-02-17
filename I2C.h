@@ -4,7 +4,7 @@ namespace SSD1306 {
     class I2C {
       public:
         virtual ~I2C(){};
-        virtual bool init() = 0;
-        virtual bool send(const unsigned char* data) = 0;
+        virtual bool init() { return false; };
+        virtual bool send(const unsigned char* data) { return false; };
     };
 } // namespace SSD1306
