@@ -16,6 +16,22 @@ SSD1306::LCD::~LCD() {
     delete i2c;
 }
 
+void SSD1306::LCD::sendCommand(const unsigned char cmd) {
+    unsigned char msg[] = {SSD1306_COMMAND, cmd};
+    if (!i2c->send(msg)) {
+        std::cout << "Failed to write to i2c" << std::endl;
+    }
+}
+
+void SSD1306::LCD::sendData(const unsigned char* data, int size) {
+    for (int i = 0; i < size; ++i) {
+        unsigned char msg[] = {SSD1306_DATA, data[i]};
+        if (!i2c->send(msg)) {
+            std::cout << "Failed to write to i2c" << std::endl;
+        }
+    }
+}
+
 void SSD1306::LCD::init() {
     if (i2c->init()) {
         // Initialization sequence
@@ -54,22 +70,6 @@ void SSD1306::LCD::init() {
         clearScreen();
     } else {
         std::cout << "Failed to initialize I2C device" << std::endl;
-    }
-}
-
-void SSD1306::LCD::sendCommand(const unsigned char cmd) {
-    unsigned char msg[] = {SSD1306_COMMAND, cmd};
-    if (!i2c->send(msg)) {
-        std::cout << "Failed to write to i2c" << std::endl;
-    }
-}
-
-void SSD1306::LCD::sendData(const unsigned char* data, int size) {
-    for (int i = 0; i < size; ++i) {
-        unsigned char msg[] = {SSD1306_DATA, data[i]};
-        if (!i2c->send(msg)) {
-            std::cout << "Failed to write to i2c" << std::endl;
-        }
     }
 }
 
