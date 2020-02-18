@@ -8,11 +8,14 @@ SSD1306::I2Cpi::I2Cpi(std::string device, unsigned char address) {
 SSD1306::I2Cpi::~I2Cpi() { close(i2c); }
 
 bool SSD1306::I2Cpi::init() {
-    if ((i2c = open(device.c_str(), O_RDWR)) >= 0) {
-        if (ioctl(i2c, I2C_SLAVE, address) >= 0) {
-            std::cout << "I2C initialized" << std::endl;
-            return true;
-        }
+    i2c = open(device.c_str(), O_RDWR);
+    if (i2c < 0) {
+        return false;
+    }
+
+    if (ioctl(i2c, I2C_SLAVE, address) >= 0) {
+        std::cout << "I2C initialized" << std::endl;
+        return true;
     }
 
     return false;
