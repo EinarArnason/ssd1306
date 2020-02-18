@@ -18,7 +18,7 @@ SSD1306::LCD::~LCD() {
 
 void SSD1306::LCD::sendCommand(const unsigned char cmd) {
     unsigned char msg[] = {SSD1306_COMMAND, cmd};
-    if (!i2c->send(msg)) {
+    if (!i2c->send(msg, sizeof(msg))) {
         std::cout << "Failed to write to i2c" << std::endl;
     }
 }
@@ -26,7 +26,7 @@ void SSD1306::LCD::sendCommand(const unsigned char cmd) {
 void SSD1306::LCD::sendData(const unsigned char* data, int size) {
     for (int i = 0; i < size; ++i) {
         unsigned char msg[] = {SSD1306_DATA, data[i]};
-        if (!i2c->send(msg)) {
+        if (!i2c->send(msg, sizeof(msg))) {
             std::cout << "Failed to write to i2c" << std::endl;
         }
     }
@@ -89,7 +89,7 @@ void SSD1306::LCD::writeText(const char* text) {
         unsigned char* iterator = SANS_SERIF_16PX_POINTERS[index];
         for (; iterator != SANS_SERIF_16PX_POINTERS[index + 1]; ++iterator) {
             unsigned char msg[] = {SSD1306_DATA, *iterator};
-            if (!i2c->send(msg)) {
+            if (!i2c->send(msg, sizeof(msg))) {
                 std::cout << "Failed to write to i2c" << std::endl;
             }
         }

@@ -20,6 +20,6 @@ namespace SSD1306 {
         ~I2Cpi();
         // Returns true if initialization is successful
         bool init();
-        bool send(const unsigned char* data);
+        bool send(const unsigned char* data, int size);
     };
 } // namespace SSD1306

@@ -5,6 +5,8 @@ namespace SSD1306 {
       public:
         virtual ~I2C(){};
         virtual bool init() { return false; };
-        virtual bool send(const unsigned char* data) { return false; };
+        virtual bool send(const unsigned char* data, int size) {
+            return false;
+        };
     };
 } // namespace SSD1306

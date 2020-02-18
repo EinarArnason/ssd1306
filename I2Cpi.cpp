@@ -14,17 +14,14 @@ bool SSD1306::I2Cpi::init() {
     }
 
     if (ioctl(i2c, I2C_SLAVE, address) >= 0) {
-        std::cout << "I2C initialized" << std::endl;
         return true;
     }
 
     return false;
 }
 
-bool SSD1306::I2Cpi::send(const unsigned char* data) {
-    if (write(i2c, data, sizeof(data)) == sizeof(data)) {
-        std::cout << "Sent: 0x" << std::hex << (int)data[0] << std::hex
-                  << (int)data[1] << std::endl;
+bool SSD1306::I2Cpi::send(const unsigned char* data, int size) {
+    if (write(i2c, data, size) == size) {
         return true;
     }
 
