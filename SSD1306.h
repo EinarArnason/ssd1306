@@ -2,7 +2,7 @@
 
 #include "Fonts/SansSerif16px.h"
 #include "Graphic.h"
-#include "I2C.h"
+#include <I2C.h>
 #include <string.h>
 
 const unsigned char SSD1306_MEMORYMODE = 0x20;
@@ -70,6 +70,7 @@ public:
   bool writeText(const char *text);
   bool setWritingArea(int x, int y, int width, int height);
   bool clearScreen();
+  void clearBuffer();
   int lcdWidth();
   int lcdHeight();
 };

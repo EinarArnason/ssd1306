@@ -132,9 +132,11 @@ bool SSD1306::LCD::setWritingArea(int x, int y, int width, int height) {
 }
 
 bool SSD1306::LCD::clearScreen() {
-  memset(buffer, 0x00, bufferSize);
+  clearBuffer();
   return sendData(buffer, bufferSize);
 }
+
+void SSD1306::LCD::clearBuffer() { memset(buffer, 0x00, bufferSize); }
 
 int SSD1306::LCD::lcdWidth() { return width; }
 
