@@ -1,13 +1,9 @@
 #pragma once
 
 #include "Fonts/SansSerif16px.h"
+#include "Graphic.h"
 #include "I2C.h"
-#include <fcntl.h>
-#include <iostream>
-#include <linux/i2c-dev.h>
 #include <string.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
 
 const unsigned char SSD1306_MEMORYMODE = 0x20;
 const unsigned char SSD1306_COLUMNADDR = 0x21;
@@ -48,31 +44,33 @@ const unsigned char SSD1306_SET_VERTICAL_SCROLL_AREA = 0xA3;
 const unsigned char SSD1306_COMMAND = 0x00;
 const unsigned char SSD1306_DATA = 0x40;
 namespace SSD1306 {
-    class LCD {
-      private:
-        I2C* i2c;
-        int width;
-        int height;
-        unsigned char* buffer;
-        int bufferSize;
+class LCD {
+private:
+  I2C *i2c;
+  int width;
+  int height;
+  unsigned char *buffer;
+  int bufferSize;
 
-      public:
-        LCD(I2C* i2c, int width, int height);
-        ~LCD();
-        void init();
-        void sendData(const unsigned char* data, int size);
-        void sendCommand(const unsigned char cmd);
-        /*
-            Image must be flipped and top must be oriented left because byte
-           orientation in SSD1306 RAM is vertical, width exceeding LCD height is
-           fine.
-        */
-        void drawXbitmap(const unsigned char* bitmap, int x, int y, int width,
-                         int height);
-        void writeText(const char* text);
-        void setWritingArea(int x, int y, int width, int height);
-        void clearScreen();
-        int lcdWidth();
-        int lcdHeight();
-    };
+public:
+  LCD(I2C *i2c, int width, int height);
+  ~LCD();
+  bool init();
+  bool sendData(const unsigned char *data, int size);
+  bool sendCommand(const unsigned char cmd);
+  /*
+      Image must be flipped and top must be oriented left because byte
+     orientation in SSD1306 RAM is vertical, width exceeding LCD height is
+     fine.
+  */
+  bool drawXbitmap(const unsigned char *bitmap, int x, int y, int width,
+                   int height);
+  bool drawXbitmap(Graphic *graphic);
+  bool drawXbitmap(Graphic graphic);
+  bool writeText(const char *text);
+  bool setWritingArea(int x, int y, int width, int height);
+  bool clearScreen();
+  int lcdWidth();
+  int lcdHeight();
+};
 } // namespace SSD1306
