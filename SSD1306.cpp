@@ -131,6 +131,10 @@ bool SSD1306::LCD::setWritingArea(int x, int y, int width, int height) {
   return success;
 }
 
+bool SSD1306::LCD::setWritingArea(SSD1306::TextBox box) {
+  return setWritingArea(box.x(), box.y(), box.width(), box.height());
+}
+
 bool SSD1306::LCD::clearScreen() {
   clearBuffer();
   return sendData(buffer, bufferSize);

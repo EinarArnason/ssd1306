@@ -2,6 +2,7 @@
 
 #include "Fonts/SansSerif16px.h"
 #include "Graphic.h"
+#include "TextBox.h"
 #include <I2C.h>
 #include <string.h>
 
@@ -69,6 +70,7 @@ public:
   bool drawXbitmap(Graphic graphic);
   bool writeText(const char *text);
   bool setWritingArea(int x, int y, int width, int height);
+  bool setWritingArea(TextBox);
   bool clearScreen();
   void clearBuffer();
   int lcdWidth();

@@ -15,6 +15,7 @@ namespace SSD1306 {
       public:
         TextBox();
         TextBox(int x, int y, int width, int height);
+        TextBox(const TextBox& old);
         int x();
         int y();
         int width();
