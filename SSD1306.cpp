@@ -1,25 +1,27 @@
 #include "SSD1306.h"
 
-SSD1306::LCD::LCD(I2C *i2c, int width, int height) {
+SSD1306::LCD::LCD(I2C *i2c, int width, int height, unsigned long frequency,
+                  unsigned char address) {
   this->i2c = i2c;
   this->width = width;
   this->height = height;
   // Divided with bits per byte
   this->bufferSize = width * height / 8;
   this->buffer = new unsigned char[bufferSize];
+  this->i2cConfig.address = address;
+  this->i2cConfig.frequency = frequency;
 }
 
 SSD1306::LCD::~LCD() {
-  clearScreen();
+  off();
   delete[] buffer;
   buffer = nullptr;
-  delete i2c;
 }
 
 bool SSD1306::LCD::sendCommand(const unsigned char cmd) {
   unsigned char msg[] = {COMMAND, cmd};
-  if (i2c->send((const char *)msg, sizeof(msg))) {
-    return true;
+  if (i2c->send(i2cConfig, (char*)msg, sizeof(msg))) {
+    return true; 
   }
 
   return false;
@@ -28,7 +30,7 @@ bool SSD1306::LCD::sendCommand(const unsigned char cmd) {
 bool SSD1306::LCD::sendData(const unsigned char *data, int size) {
   for (int i = 0; i < size; ++i) {
     unsigned char msg[] = {DATA, data[i]};
-    if (!i2c->send((const char *)msg, sizeof(msg))) {
+    if (!i2c->send(i2cConfig, (char*)msg, sizeof(msg))) {
       return false;
     }
   }
@@ -111,7 +113,7 @@ bool SSD1306::LCD::writeText(const char *text) {
     unsigned char *iterator = SANS_SERIF_16PX_POINTERS[index];
     for (; iterator != SANS_SERIF_16PX_POINTERS[index + 1]; ++iterator) {
       unsigned char msg[] = {DATA, *iterator};
-      if (!i2c->send((const char *)msg, sizeof(msg))) {
+      if (!i2c->send(i2cConfig, (char*)msg, sizeof(msg))) {
         return false;
       }
     }

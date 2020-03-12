@@ -1,5 +1,6 @@
 #pragma once
 
+namespace SSD1306 {
 static const int SANS_SERIF_16PX_DATA_LENGTH = 1814;
 static unsigned char SANS_SERIF_16PX_DATA[] = {
     // Space
@@ -338,3 +339,4 @@ static unsigned char *SANS_SERIF_16PX_POINTERS[] = {
     SANS_SERIF_16PX_DATA + 1772, SANS_SERIF_16PX_DATA + 1798,
     SANS_SERIF_16PX_DATA + 1814,
 };
+} // namespace SSD1306
