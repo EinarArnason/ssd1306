@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/einar/Mikro/waterboy2/waterboy2-interface/ssd1306/build",
-  "command": "/usr/bin/c++    -g   -o CMakeFiles/SSD1306.dir/SSD1306.cpp.o -c /home/einar/Mikro/waterboy2/waterboy2-interface/ssd1306/SSD1306.cpp",
-  "file": "/home/einar/Mikro/waterboy2/waterboy2-interface/ssd1306/SSD1306.cpp"
-}
-]
