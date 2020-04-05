@@ -141,11 +141,7 @@ bool SSD1306::LCD::setWritingArea(SSD1306::TextBox textBox) {
 }
 
 bool SSD1306::LCD::print(TextBox textBox, const char* text) {
-    unsigned char eraser[textBox.width() * textBox.height() / 8];
-    memset(eraser, 0, sizeof(eraser));
-
-    return setWritingArea(textBox) && sendData(eraser, sizeof(eraser)) &&
-           writeText(text);
+    return setWritingArea(textBox) && writeText(text);
 }
 
 bool SSD1306::LCD::clearScreen() {
