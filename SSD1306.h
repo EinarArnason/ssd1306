@@ -48,6 +48,7 @@ namespace SSD1306 {
     static const unsigned char DATA = 0x40;
 
     static const char DEGREE_SYMBOL = 127;
+    static const int ASCII_OFFSET = 32;
 
     class LCD {
       private:
@@ -77,7 +78,7 @@ namespace SSD1306 {
                          int height);
         bool drawXbitmap(Graphic* graphic);
         bool drawXbitmap(Graphic graphic);
-        bool writeText(const char* text);
+        bool writeText(const char* text, int length);
         bool setWritingArea(int x, int y, int width, int height);
         bool setWritingArea(TextBox textBox);
         bool print(TextBox textBox, const char* text);

@@ -11,6 +11,7 @@ namespace SSD1306 {
         int pageEnd;
         int columnStart;
         int columnEnd;
+        int dataLength;
 
       public:
         TextBox();
@@ -20,5 +21,6 @@ namespace SSD1306 {
         int y();
         int width();
         int height();
+        int size();
     };
 } // namespace SSD1306

@@ -102,9 +102,10 @@ bool SSD1306::LCD::drawXbitmap(Graphic graphic) {
 
 // Writing area for text needs to be set up as textboxes with matching height of
 // the font
-bool SSD1306::LCD::writeText(const char* text) {
+bool SSD1306::LCD::writeText(const char* text, int length) {
+    int dataWritten = 0;
     for (; *text != '\0'; ++text) {
-        int index = *text - 32;
+        int index = *text - ASCII_OFFSET;
 
         if (index >= SANS_SERIF_16PX_POINTERS_LENGTH) {
             continue;
@@ -116,8 +117,14 @@ bool SSD1306::LCD::writeText(const char* text) {
             if (!i2c->send(i2cConfig, (char*)msg, sizeof(msg))) {
                 return false;
             }
+
+            dataWritten++;
         }
     }
+
+    unsigned char pad[length - dataWritten];
+    memset(pad, 0, sizeof(pad));
+    sendData(pad, sizeof(pad));
 
     return true;
 }
@@ -141,7 +148,7 @@ bool SSD1306::LCD::setWritingArea(SSD1306::TextBox textBox) {
 }
 
 bool SSD1306::LCD::print(TextBox textBox, const char* text) {
-    return setWritingArea(textBox) && writeText(text);
+    return setWritingArea(textBox) && writeText(text, textBox.size());
 }
 
 bool SSD1306::LCD::clearScreen() {
