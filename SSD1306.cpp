@@ -147,6 +147,31 @@ bool SSD1306::LCD::setWritingArea(SSD1306::TextBox textBox) {
                           textBox.height());
 }
 
+bool SSD1306::LCD::fillRectangle(int x, int y, int width, int height,
+                                 bool color) {
+    int size = width * height / 8;
+    unsigned char data;
+
+    if (color) {
+        data = 0xff;
+    } else {
+        data = 0x00;
+    }
+
+    if (!setWritingArea(x, y, width, height)) {
+        return false;
+    }
+
+    for (int i = 0; i < size; ++i) {
+        unsigned char msg[] = {DATA, data};
+        if (!i2c->send(i2cConfig, (char*)msg, sizeof(msg))) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool SSD1306::LCD::print(TextBox textBox, const char* text) {
     return setWritingArea(textBox) && writeText(text, textBox.size());
 }

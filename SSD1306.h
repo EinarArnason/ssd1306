@@ -81,6 +81,7 @@ namespace SSD1306 {
         bool writeText(const char* text, int length);
         bool setWritingArea(int x, int y, int width, int height);
         bool setWritingArea(TextBox textBox);
+        bool fillRectangle(int x, int y, int width, int height, bool color);
         bool print(TextBox textBox, const char* text);
         bool clearScreen();
         void clearBuffer();
