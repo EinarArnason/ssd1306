@@ -4,13 +4,20 @@ project(SSD1306 VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
-add_library(${PROJECT_NAME} SSD1306.cpp Graphic.cpp TextBox.cpp)
+include_directories(${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/fonts)
+
+add_library(
+    ${PROJECT_NAME} 
+    ${PROJECT_SOURCE_DIR}/src/SSD1306.cpp 
+    ${PROJECT_SOURCE_DIR}/src/Graphic.cpp 
+    ${PROJECT_SOURCE_DIR}/src/TextBox.cpp
+)
 
 if (NOT TARGET I2C)
-    add_subdirectory (i2c)
+    add_subdirectory (${PROJECT_SOURCE_DIR}/lib/i2c)
 endif()
 
-target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_SOURCE_DIR}/i2c/)
+target_include_directories(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCE_DIR}/lib/i2c)
 target_link_libraries(${PROJECT_NAME} I2C)
 
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)

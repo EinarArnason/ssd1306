@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Fonts/SansSerif16px.h"
-#include "Graphic.h"
-#include "TextBox.h"
+#include <SansSerif16px.h>
+#include <Graphic.h>
+#include <TextBox.h>
 #include <I2C.h>
 #include <string.h>
 
@@ -55,8 +55,7 @@ namespace SSD1306 {
         I2C* i2c;
         int width;
         int height;
-        unsigned char* buffer;
-        int bufferSize;
+        int size;
         bool isOn;
         unsigned char contrast;
         I2C::Config i2cConfig;
@@ -84,7 +83,6 @@ namespace SSD1306 {
         bool fillRectangle(int x, int y, int width, int height, bool color);
         bool print(TextBox textBox, const char* text);
         bool clearScreen();
-        void clearBuffer();
         bool off();
         bool on();
         bool lcdOn();

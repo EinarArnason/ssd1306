@@ -6,17 +6,12 @@ SSD1306::LCD::LCD(I2C* i2c, int width, int height, unsigned long frequency,
     this->width = width;
     this->height = height;
     // Divided with bits per byte
-    this->bufferSize = width * height / 8;
-    this->buffer = new unsigned char[bufferSize];
+    this->size = width * height / 8;
     this->i2cConfig.address = address;
     this->i2cConfig.frequency = frequency;
 }
 
-SSD1306::LCD::~LCD() {
-    off();
-    delete[] buffer;
-    buffer = nullptr;
-}
+SSD1306::LCD::~LCD() { off(); }
 
 bool SSD1306::LCD::sendCommand(const unsigned char cmd) {
     unsigned char msg[] = {COMMAND, cmd};
@@ -177,11 +172,11 @@ bool SSD1306::LCD::print(TextBox textBox, const char* text) {
 }
 
 bool SSD1306::LCD::clearScreen() {
-    clearBuffer();
-    return sendData(buffer, bufferSize);
-}
+    unsigned char buffer[size];
+    memset(buffer, 0x00, size);
 
-void SSD1306::LCD::clearBuffer() { memset(buffer, 0x00, bufferSize); }
+    return sendData(buffer, size);
+}
 
 bool SSD1306::LCD::off() {
     if (isOn && sendCommand(SSD1306::DISPLAYOFF)) {
