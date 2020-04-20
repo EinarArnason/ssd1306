@@ -7,11 +7,12 @@ SSD1306::LCD::LCD(I2C* i2c, int width, int height, unsigned long frequency,
     this->height = height;
     // Divided with bits per byte
     this->size = width * height / 8;
+    this->inverted = false;
     this->i2cConfig.address = address;
     this->i2cConfig.frequency = frequency;
 }
 
-SSD1306::LCD::~LCD() { off(); }
+SSD1306::LCD::~LCD() { turnOff(); }
 
 bool SSD1306::LCD::sendCommand(const unsigned char cmd) {
     unsigned char msg[] = {COMMAND, cmd};
@@ -36,43 +37,67 @@ bool SSD1306::LCD::sendData(const unsigned char* data, int size) {
 bool SSD1306::LCD::init() {
     if (i2c->init()) {
         int success = 0;
+        int count = 0;
         isOn = true;
         contrast = 0;
         // Initialization sequence
-        success += off();
-        success += sendCommand(SETDISPLAYCLOCKDIV);
-        success += sendCommand(0x80);
-        success += sendCommand(SETMULTIPLEX);
-        success += sendCommand(height - 1);
-        success += sendCommand(SETDISPLAYOFFSET);
+        success += turnOff();
+        count++;
+        success += setMultiplexRatio(height - 1);
+        count++;
+        success += sendCommand(SET_DISPLAY_OFFSET);
+        count++;
         success += sendCommand(0x00);
-        success += sendCommand(SETSTARTLINE | 0x00);
-        success += sendCommand(CHARGEPUMP);
-        success += sendCommand(0x14);
-        success += sendCommand(MEMORYMODE);
-        success += sendCommand(0x01);
-        success += sendCommand(SEGREMAP | 0x1);
-        success += sendCommand(COMSCANDEC);
-        success += sendCommand(SETCOMPINS);
-        success += sendCommand(0x12);
-        setContrast(0xcf);
-        success += sendCommand(SETPRECHARGE);
-        success += sendCommand(0xF1);
-        success += sendCommand(SETVCOMDETECT);
-        success += sendCommand(0x40);
-        success += sendCommand(DISPLAYALLON_RESUME);
-        success += sendCommand(NORMALDISPLAY);
-        success += sendCommand(DEACTIVATE_SCROLL);
-        success += on();
-        success += sendCommand(COLUMNADDR);
-        success += sendCommand(0x00);
-        success += sendCommand(width - 1);
-        success += sendCommand(PAGEADDR);
-        success += sendCommand(0x00);
-        success += sendCommand(0xFF);
-        success += clearScreen();
+        count++;
+        success += sendCommand(SET_SEGMENT_REMAP_OFF);
+        count++;
 
-        return success == 31;
+        success += sendCommand(SET_DISPLAY_CLOCK_DIVIDER);
+        count++;
+        success += sendCommand(DEFAULT_DISPLAY_CLOCK_DIVIDER);
+        count++;
+
+        success += sendCommand(SET_START_LINE);
+        count++;
+        success += sendCommand(CHARGE_PUMP_SETTING);
+        count++;
+        success += sendCommand(CHARGE_PUMP_ENABLE);
+        count++;
+        success += setMemoryAddressingMode(MEMORY_ADDRESSING_VERTICAL);
+        count++;
+
+        success += sendCommand(SET_COM_OUTPUT_SCAN_NORMAL);
+        count++;
+        success += sendCommand(SET_COM_PINS_HW_CONFIG);
+        count++;
+        success += sendCommand(0x12);
+        count++;
+        success += setContrast(DEFAULT_CONTRAST);
+        count++;
+        success += sendCommand(SET_PRECHARGE_PERIOD);
+        count++;
+        success += sendCommand(0xF1);
+        count++;
+        success += sendCommand(SET_VCOM_DESELECT_LEVEL);
+        count++;
+        success += sendCommand(0x40);
+        count++;
+        success += sendCommand(DISPLAYALLON_RESUME);
+        count++;
+        success += sendCommand(NORMAL_DISPLAY);
+        count++;
+        success += sendCommand(DEACTIVATE_SCROLL);
+        count++;
+        success += turnOn();
+        count++;
+        success += setColumnRange(0x00, width - 1);
+        count++;
+        success += setPageRange(0x00, 0xFF);
+        count++;
+        success += clearScreen();
+        count++;
+
+        return success == count;
     } else {
         return false;
     }
@@ -126,10 +151,10 @@ bool SSD1306::LCD::writeText(const char* text, int length) {
 
 bool SSD1306::LCD::setWritingArea(int x, int y, int width, int height) {
     int success = 0;
-    success += sendCommand(COLUMNADDR);
+    success += sendCommand(SET_COLUMN_ADDRESS);
     success += sendCommand(x);
     success += sendCommand(x + (width - 1));
-    success += sendCommand(PAGEADDR);
+    success += sendCommand(SET_PAGE_ADDRESS);
     int pageStart = (unsigned char)y / 8;
     success += sendCommand(pageStart);
     success += sendCommand(pageStart + (height / 8) - 1);
@@ -178,8 +203,8 @@ bool SSD1306::LCD::clearScreen() {
     return sendData(buffer, size);
 }
 
-bool SSD1306::LCD::off() {
-    if (isOn && sendCommand(SSD1306::DISPLAYOFF)) {
+bool SSD1306::LCD::turnOff() {
+    if (isOn && sendCommand(SSD1306::DISPLAY_OFF)) {
         isOn = false;
         return true;
     }
@@ -187,8 +212,8 @@ bool SSD1306::LCD::off() {
     return false;
 }
 
-bool SSD1306::LCD::on() {
-    if (!isOn && sendCommand(SSD1306::DISPLAYON)) {
+bool SSD1306::LCD::turnOn() {
+    if (!isOn && sendCommand(SSD1306::DISPLAY_ON)) {
         isOn = true;
         return true;
     };
@@ -204,7 +229,7 @@ bool SSD1306::LCD::setContrast(unsigned char value) {
     }
 
     int success = 0;
-    success += sendCommand(SSD1306::SETCONTRAST);
+    success += sendCommand(SSD1306::SET_CONTRAST);
     success += sendCommand(value);
 
     if (success == 2) {
@@ -213,6 +238,62 @@ bool SSD1306::LCD::setContrast(unsigned char value) {
     }
 
     return false;
+}
+
+bool SSD1306::LCD::setMultiplexRatio(unsigned char ratio) {
+    int success = 0;
+    success += sendCommand(SET_MUX_RATIO);
+    success += sendCommand(ratio);
+
+    return success == 2;
+}
+
+bool SSD1306::LCD::setMemoryAddressingMode(unsigned char mode) {
+    int success = 0;
+    success += sendCommand(SET_MEMORY_ADDRESSING_MODE);
+    success += sendCommand(mode);
+
+    return success == 2;
+}
+
+bool SSD1306::LCD::invert() {
+    if (inverted) {
+        if (sendCommand(NORMAL_DISPLAY)) {
+            inverted = false;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    if (sendCommand(INVERT_DISPLAY)) {
+        inverted = true;
+        return true;
+    }
+
+    return false;
+}
+
+bool SSD1306::LCD::setColumnRange(unsigned char start, unsigned char end) {
+    int success = 0;
+    success += sendCommand(SET_COLUMN_ADDRESS);
+    success += sendCommand(start);
+    success += sendCommand(end);
+
+    return success == 3;
+}
+
+bool SSD1306::LCD::setPageRange(unsigned char start, unsigned char end) {
+    int success = 0;
+    int count = 0;
+    success += sendCommand(SET_PAGE_ADDRESS);
+    count++;
+    success += sendCommand(start);
+    count++;
+    success += sendCommand(end);
+    count++;
+
+    return success == count;
 }
 
 int SSD1306::LCD::lcdWidth() { return width; }

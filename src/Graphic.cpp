@@ -14,13 +14,6 @@ SSD1306::Graphic::Graphic(unsigned char* buffer, int width, int height) {
     this->size = (width * height) / 8;
 }
 
-SSD1306::Graphic::Graphic(const Graphic& old) {
-    buffer = old.buffer;
-    width = old.width;
-    height = old.height;
-    size = old.size;
-}
-
 int SSD1306::Graphic::getWidth() { return width; }
 
 int SSD1306::Graphic::getHeight() { return height; }

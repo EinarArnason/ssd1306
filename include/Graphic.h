@@ -11,7 +11,6 @@ namespace SSD1306 {
       public:
         Graphic();
         Graphic(unsigned char* buffer, int width, int height);
-        Graphic(const Graphic& old);
         int getWidth();
         int getHeight();
         int getSize();

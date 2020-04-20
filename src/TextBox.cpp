@@ -16,14 +16,6 @@ SSD1306::TextBox::TextBox(int x, int y, int width, int height) {
     this->dataLength = width * height / 8;
 }
 
-SSD1306::TextBox::TextBox(const TextBox& old) {
-    this->pageStart = old.pageStart;
-    this->pageEnd = old.pageEnd;
-    this->columnStart = old.columnStart;
-    this->columnEnd = old.columnEnd;
-    this->dataLength = old.dataLength;
-}
-
 int SSD1306::TextBox::x() { return pageStart; }
 int SSD1306::TextBox::y() { return pageEnd; }
 int SSD1306::TextBox::width() { return columnStart; }
