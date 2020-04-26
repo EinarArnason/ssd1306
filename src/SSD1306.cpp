@@ -45,19 +45,15 @@ bool SSD1306::LCD::init() {
     count++;
     success += setMultiplexRatio(height - 1);
     count++;
-    success += sendCommand(SET_DISPLAY_OFFSET);
-    count++;
-    success += sendCommand(0x00);
+    success += setDisplayOffset(0x00);
     count++;
     success += sendCommand(SET_START_LINE);
     count++;
     success += sendCommand(SET_SEGMENT_REMAP_OFF);
     count++;
-    success += sendCommand(SET_COM_OUTPUT_SCAN_NORMAL);
+    success += sendCommand(SET_COM_OUTPUT_SCAN_REMAPPED);
     count++;
-    success += sendCommand(SET_COM_PINS_HW_CONFIG);
-    count++;
-    success += sendCommand(COM_PINS_SEQUENTIAL);
+    success += setComPinsHwConfig(COM_PINS_ALTERNATIVE);
     count++;
     success += setContrast(DEFAULT_CONTRAST);
     count++;
@@ -65,13 +61,9 @@ bool SSD1306::LCD::init() {
     count++;
     success += sendCommand(NORMAL_DISPLAY);
     count++;
-    success += sendCommand(SET_DISPLAY_CLOCK_DIVIDER);
+    success += setDisplayClockDivider(DEFAULT_DISPLAY_CLOCK_DIVIDER);
     count++;
-    success += sendCommand(DEFAULT_DISPLAY_CLOCK_DIVIDER);
-    count++;
-    success += sendCommand(CHARGE_PUMP_SETTING);
-    count++;
-    success += sendCommand(CHARGE_PUMP_ENABLE);
+    success += setChargePumpSetting(CHARGE_PUMP_ENABLE);
     count++;
     success += setMemoryAddressingMode(MEMORY_ADDRESSING_VERTICAL);
     count++;
@@ -264,6 +256,17 @@ bool SSD1306::LCD::setMemoryAddressingMode(unsigned char mode) {
   return success == count;
 }
 
+bool SSD1306::LCD::setComPinsHwConfig(unsigned char config) {
+  int success = 0;
+  int count = 0;
+  success += sendCommand(SET_COM_PINS_HW_CONFIG);
+  count++;
+  success += sendCommand(COM_PINS_ALTERNATIVE);
+  count++;
+
+  return success == count;
+}
+
 bool SSD1306::LCD::invert() {
   if (inverted) {
     if (sendCommand(NORMAL_DISPLAY)) {
@@ -319,6 +322,30 @@ bool SSD1306::LCD::setChargePumpSetting(unsigned char setting) {
   return success == count;
 }
 
+bool SSD1306::LCD::setDisplayOffset(unsigned char offset) {
+  int success = 0;
+  int count = 0;
+  success += sendCommand(SET_DISPLAY_OFFSET);
+  count++;
+  success += sendCommand(offset);
+  count++;
+
+  return success == count;
+}
+
+bool SSD1306::LCD::setDisplayClockDivider(unsigned char divider) {
+  int success = 0;
+  int count = 0;
+  success += sendCommand(SET_DISPLAY_CLOCK_DIVIDER);
+  count++;
+  success += sendCommand(divider);
+  count++;
+
+  return success == count;
+}
+
 int SSD1306::LCD::lcdWidth() { return width; }
 
 int SSD1306::LCD::lcdHeight() { return height; }
+
+int SSD1306::LCD::lcdSize() { return size; }

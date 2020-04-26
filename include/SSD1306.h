@@ -128,9 +128,13 @@ class LCD {
   bool setColumnRange(unsigned char start, unsigned char end);
   bool setPageRange(unsigned char start, unsigned char end);
   bool setChargePumpSetting(unsigned char setting);
+  bool setComPinsHwConfig(unsigned char config);
+  bool setDisplayOffset(unsigned char offset);
+  bool setDisplayClockDivider(unsigned char divider);
   // Invert color of the entire screen
   bool invert();
   int lcdWidth();
   int lcdHeight();
+  int lcdSize();
 };
 }  // namespace SSD1306
