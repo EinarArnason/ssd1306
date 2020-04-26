@@ -118,21 +118,34 @@ class LCD {
   bool fillRectangle(int x, int y, int width, int height, bool color);
   bool print(TextBox textBox, const char* text);
   bool clearScreen();
-  bool turnOff();
-  bool turnOn();
-  bool lcdIsOn();
-  bool setContrast(unsigned char value);
-  bool entireDisplayOn(bool resumeRam = true);
-  bool setMultiplexRatio(unsigned char ratio);
+  /*
+    This command specifies the lower nibble of the 8-bit column start address
+    for the display data RAM under Page Addressing Mode. The column address
+    will be incremented by each data access.
+  */
+  bool setLowerColumnStartAddress(unsigned char address);
+  bool setHigherColumnStartAddress(unsigned char address);
   bool setMemoryAddressingMode(unsigned char mode);
   bool setColumnRange(unsigned char start, unsigned char end);
   bool setPageRange(unsigned char start, unsigned char end);
-  bool setChargePumpSetting(unsigned char setting);
-  bool setComPinsHwConfig(unsigned char config);
-  bool setDisplayOffset(unsigned char offset);
-  bool setDisplayClockDivider(unsigned char divider);
+  bool setDisplayStartLine(unsigned char start);
+  bool setContrast(unsigned char value);
+  bool setSegmentRemap(unsigned char mapping);
+  bool entireDisplayOn(bool resumeRam = true);
   // Invert color of the entire screen
   bool invert();
+  bool setMultiplexRatio(unsigned char ratio);
+  bool turnOff();
+  bool turnOn();
+  bool lcdIsOn();
+  bool setPageStartAddress(unsigned char address);
+  bool setComOutputScanDirection(unsigned char direction);
+  bool setDisplayOffset(unsigned char offset);
+  bool setDisplayClockDivider(unsigned char divider);
+  bool setPreChargePeriod(unsigned char period);
+  bool setComPinsHwConfig(unsigned char config);
+  bool setChargePumpSetting(unsigned char setting);
+
   int lcdWidth();
   int lcdHeight();
   int lcdSize();
