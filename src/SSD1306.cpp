@@ -43,31 +43,29 @@ bool SSD1306::LCD::init() {
     // Initialization sequence
     success += turnOff();
     count++;
-    success += setMultiplexRatio(height - 1);
+    success += setMultiplexRatio();
     count++;
-    success += setDisplayOffset(0x00);
+    success += setDisplayOffset();
     count++;
-    success += sendCommand(SET_START_LINE);
+    success += setDisplayStartLine();
     count++;
-    success += sendCommand(SET_SEGMENT_REMAP_OFF);
+    success += setSegmentRemap();
     count++;
-    success += sendCommand(SET_COM_OUTPUT_SCAN_REMAPPED);
+    success += setComOutputScanDirection();
     count++;
-    success += setComPinsHwConfig(COM_PINS_ALTERNATIVE);
+    success += setComPinsHwConfig();
     count++;
-    success += setContrast(DEFAULT_CONTRAST);
+    success += setContrast();
     count++;
-    success += sendCommand(ENTIRE_DISPLAY_ON_RESUME_RAM);
+    success += entireDisplayOn();
     count++;
-    success += sendCommand(NORMAL_DISPLAY);
+    success += invert(false);
     count++;
-    success += setDisplayClockDivider(DEFAULT_DISPLAY_CLOCK_DIVIDER);
+    success += setDisplayClock();
     count++;
-    success += setChargePumpSetting(CHARGE_PUMP_ENABLE);
+    success += setChargePumpSetting();
     count++;
-    success += setMemoryAddressingMode(MEMORY_ADDRESSING_VERTICAL);
-    count++;
-    success += sendCommand(DEACTIVATE_SCROLL);
+    success += setMemoryAddressingMode();
     count++;
     success += clearScreen();
     count++;
@@ -119,6 +117,7 @@ bool SSD1306::LCD::writeText(const char* text, int length) {
     }
   }
 
+  // Padding to clear leftover pixels on screen
   unsigned char pad[length - dataWritten];
   memset(pad, 0, sizeof(pad));
   sendData(pad, sizeof(pad));
@@ -187,6 +186,134 @@ bool SSD1306::LCD::clearScreen() {
   return success == count;
 }
 
+bool SSD1306::LCD::setLowerColumnStartAddress(unsigned char address) {
+  address = SET_LOWER_COLUMN_START_ADDRESS | (address & 0x0F);
+  return sendCommand(address);
+}
+
+bool SSD1306::LCD::setHigherColumnStartAddress(unsigned char address) {
+  address = SET_HIGHER_COLUMN_START_ADDRESS | (address & 0x0F);
+  return sendCommand(address);
+}
+
+bool SSD1306::LCD::setMemoryAddressingMode(unsigned char mode) {
+  mode = mode & 0x03;
+  if (mode == 3) {
+    return false;
+  }
+
+  int success = 0;
+  int count = 0;
+  success += sendCommand(SET_MEMORY_ADDRESSING_MODE);
+  count++;
+  success += sendCommand(mode);
+  count++;
+
+  return success == count;
+}
+
+bool SSD1306::LCD::setColumnRange(unsigned char start, unsigned char end) {
+  start = start & 0x7F;
+  end = end & 0x7F;
+  int success = 0;
+  int count = 0;
+  success += sendCommand(SET_COLUMN_ADDRESS);
+  count++;
+  success += sendCommand(start);
+  count++;
+  success += sendCommand(end);
+  count++;
+
+  return success == count;
+}
+
+bool SSD1306::LCD::setPageRange(unsigned char start, unsigned char end) {
+  start = start & 0x07;
+  end = end & 0x07;
+  int success = 0;
+  int count = 0;
+  success += sendCommand(SET_PAGE_ADDRESS);
+  count++;
+  success += sendCommand(start);
+  count++;
+  success += sendCommand(end);
+  count++;
+
+  return success == count;
+}
+
+bool SSD1306::LCD::setDisplayStartLine(unsigned char start) {
+  start = SET_START_LINE | (start & 0x3F);
+
+  return sendCommand(start);
+}
+
+bool SSD1306::LCD::setContrast(unsigned char value) {
+  if (contrast == value) {
+    return false;
+  }
+
+  int success = 0;
+  int count = 0;
+  success += sendCommand(SET_CONTRAST);
+  count++;
+  success += sendCommand(value);
+  count++;
+
+  if (success == count) {
+    contrast = value;
+    return true;
+  }
+
+  return false;
+}
+
+bool SSD1306::LCD::setSegmentRemap(bool remap) {
+  unsigned char mapping = SET_SEGMENT_REMAP | remap;
+
+  return sendCommand(mapping);
+}
+
+bool SSD1306::LCD::entireDisplayOn(bool resumeRam) {
+  unsigned char cmd = ENTIRE_DISPLAY_ON | resumeRam;
+
+  return sendCommand(cmd);
+}
+
+bool SSD1306::LCD::invert(bool invert) {
+  unsigned char inverse = SET_INVERSE | invert;
+
+  if (sendCommand(inverse)) {
+    inverted = invert;
+    return true;
+  }
+
+  return false;
+}
+
+bool SSD1306::LCD::invert() {
+  unsigned char inverse = SET_INVERSE | !inverted;
+
+  if (sendCommand(inverse)) {
+    inverted = !inverted;
+    return true;
+  }
+
+  return false;
+}
+
+bool SSD1306::LCD::setMultiplexRatio(unsigned char ratio) {
+  ratio = ratio & 0x3F;
+  int success = 0;
+  int count = 0;
+  success += sendCommand(SET_MUX_RATIO);
+  count++;
+  success += sendCommand(ratio);
+  count++;
+
+  return success == count;
+}
+
 bool SSD1306::LCD::turnOff() {
   if (isOn && sendCommand(SSD1306::DISPLAY_OFF)) {
     isOn = false;
@@ -207,122 +334,20 @@ bool SSD1306::LCD::turnOn() {
 
 bool SSD1306::LCD::lcdIsOn() { return isOn; }
 
-bool SSD1306::LCD::setContrast(unsigned char value) {
-  if (contrast == value) {
-    return false;
-  }
+bool SSD1306::LCD::setPageStartAddress(unsigned char address) {
+  address = SET_PAGE_START_ADDRESS | (address & 0x07);
 
-  int success = 0;
-  int count = 0;
-  success += sendCommand(SSD1306::SET_CONTRAST);
-  count++;
-  success += sendCommand(value);
-  count++;
-
-  if (success == count) {
-    contrast = value;
-    return true;
-  }
-
-  return false;
+  return sendCommand(address);
 }
 
-bool SSD1306::LCD::entireDisplayOn(bool resumeRam) {
-  if (resumeRam) {
-    return sendCommand(ENTIRE_DISPLAY_ON_RESUME_RAM);
-  }
-  return sendCommand(ENTIRE_DISPLAY_ON_IGNORE_RAM);
-}
+bool SSD1306::LCD::setComOutputScanDirection(bool remapped) {
+  unsigned char direction = SET_COM_OUTPUT_SCAN | (remapped << 3);
 
-bool SSD1306::LCD::setMultiplexRatio(unsigned char ratio) {
-  int success = 0;
-  int count = 0;
-  success += sendCommand(SET_MUX_RATIO);
-  count++;
-  success += sendCommand(ratio);
-  count++;
-
-  return success == count;
-}
-
-bool SSD1306::LCD::setMemoryAddressingMode(unsigned char mode) {
-  int success = 0;
-  int count = 0;
-  success += sendCommand(SET_MEMORY_ADDRESSING_MODE);
-  count++;
-  success += sendCommand(mode);
-  count++;
-
-  return success == count;
-}
-
-bool SSD1306::LCD::setComPinsHwConfig(unsigned char config) {
-  int success = 0;
-  int count = 0;
-  success += sendCommand(SET_COM_PINS_HW_CONFIG);
-  count++;
-  success += sendCommand(COM_PINS_ALTERNATIVE);
-  count++;
-
-  return success == count;
-}
-
-bool SSD1306::LCD::invert() {
-  if (inverted) {
-    if (sendCommand(NORMAL_DISPLAY)) {
-      inverted = false;
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  if (sendCommand(INVERT_DISPLAY)) {
-    inverted = true;
-    return true;
-  }
-
-  return false;
-}
-
-bool SSD1306::LCD::setColumnRange(unsigned char start, unsigned char end) {
-  int success = 0;
-  int count = 0;
-  success += sendCommand(SET_COLUMN_ADDRESS);
-  count++;
-  success += sendCommand(start);
-  count++;
-  success += sendCommand(end);
-  count++;
-
-  return success == count;
-}
-
-bool SSD1306::LCD::setPageRange(unsigned char start, unsigned char end) {
-  int success = 0;
-  int count = 0;
-  success += sendCommand(SET_PAGE_ADDRESS);
-  count++;
-  success += sendCommand(start);
-  count++;
-  success += sendCommand(end);
-  count++;
-
-  return success == count;
-}
-
-bool SSD1306::LCD::setChargePumpSetting(unsigned char setting) {
-  int success = 0;
-  int count = 0;
-  success += sendCommand(CHARGE_PUMP_SETTING);
-  count++;
-  success += sendCommand(setting);
-  count++;
-
-  return success == count;
+  return sendCommand(direction);
 }
 
 bool SSD1306::LCD::setDisplayOffset(unsigned char offset) {
+  offset = offset & 0x3F;
   int success = 0;
   int count = 0;
   success += sendCommand(SET_DISPLAY_OFFSET);
@@ -333,12 +358,144 @@ bool SSD1306::LCD::setDisplayOffset(unsigned char offset) {
   return success == count;
 }
 
-bool SSD1306::LCD::setDisplayClockDivider(unsigned char divider) {
+bool SSD1306::LCD::setDisplayClock(unsigned char ratio,
+                                   unsigned char frequency) {
+  unsigned char cmd = (frequency << 4) | (ratio & 0x0F);
   int success = 0;
   int count = 0;
-  success += sendCommand(SET_DISPLAY_CLOCK_DIVIDER);
+  success += sendCommand(SET_DISPLAY_CLOCK);
   count++;
-  success += sendCommand(divider);
+  success += sendCommand(cmd);
+  count++;
+
+  return success == count;
+}
+
+bool SSD1306::LCD::setPreChargePeriod(unsigned char phase1,
+                                      unsigned char phase2) {
+  unsigned char cmd = (phase2 << 4) | (phase1 & 0x0F);
+
+  if (!cmd) {
+    return false;
+  }
+
+  int success = 0;
+  int count = 0;
+  success += sendCommand(SET_PRECHARGE_PERIOD);
+  count++;
+  success += sendCommand(cmd);
+  count++;
+
+  return success == count;
+}
+
+bool SSD1306::LCD::setComPinsHwConfig(bool alternative, bool leftRightRemap) {
+  unsigned char cmd = 0x02 | (alternative << 4) | (leftRightRemap << 5);
+  int success = 0;
+  int count = 0;
+  success += sendCommand(SET_COM_PINS_HW_CONFIG);
+  count++;
+  success += sendCommand(cmd);
+  count++;
+
+  return success == count;
+}
+
+bool SSD1306::LCD::setVcomhDeselectLevel(unsigned char level) {
+  level = level & 0x70;
+  int success = 0;
+  int count = 0;
+  success += sendCommand(SET_VCOM_DESELECT_LEVEL);
+  count++;
+  success += sendCommand(level);
+  count++;
+
+  return success == count;
+}
+
+bool SSD1306::LCD::horizontalScrollSetup(unsigned char direction,
+                                         unsigned char start, unsigned char end,
+                                         unsigned char interval) {
+  direction = direction & 0x01;
+  start = start & 0x07;
+  end = end & 0x07;
+  interval = interval & 0x07;
+
+  int success = 0;
+  int count = 0;
+  success += sendCommand(HORIZONTAL_SCROLL_SETUP | direction);
+  count++;
+  success += sendCommand(0x00);
+  count++;
+  success += sendCommand(start);
+  count++;
+  success += sendCommand(interval);
+  count++;
+  success += sendCommand(end);
+  count++;
+  success += sendCommand(0x00);
+  count++;
+  success += sendCommand(0xFF);
+  count++;
+
+  return success == count;
+}
+
+bool SSD1306::LCD::verticalAndHorizontalScrollSetup(
+    unsigned char direction, unsigned char start, unsigned char end,
+    unsigned char interval, unsigned char verticalOffset) {
+  direction = direction & 0x03;
+  start = start & 0x07;
+  end = end & 0x07;
+  interval = interval & 0x07;
+  verticalOffset = verticalOffset & 0x3F;
+
+  int success = 0;
+  int count = 0;
+  success += sendCommand(HORIZONTAL_SCROLL_SETUP | direction);
+  count++;
+  success += sendCommand(0x00);
+  count++;
+  success += sendCommand(start);
+  count++;
+  success += sendCommand(interval);
+  count++;
+  success += sendCommand(end);
+  count++;
+  success += sendCommand(verticalOffset);
+  count++;
+
+  return success == count;
+}
+
+bool SSD1306::LCD::deactivateScroll() { return sendCommand(DEACTIVATE_SCROLL); }
+
+bool SSD1306::LCD::activateScroll() { return sendCommand(ACTIVATE_SCROLL); }
+
+bool SSD1306::LCD::setVerticalScrollArea(unsigned char topRows,
+                                         unsigned char scrollAreaRows) {
+  topRows = topRows & 0x3F;
+  scrollAreaRows = scrollAreaRows & 0x7F;
+
+  int success = 0;
+  int count = 0;
+  success += sendCommand(SET_VERTICAL_SCROLL_AREA);
+  count++;
+  success += sendCommand(topRows);
+  count++;
+  success += sendCommand(scrollAreaRows);
+  count++;
+
+  return success == count;
+}
+
+bool SSD1306::LCD::setChargePumpSetting(bool enableChargePump) {
+  unsigned char cmd = 0x10 | (enableChargePump << 2);
+  int success = 0;
+  int count = 0;
+  success += sendCommand(CHARGE_PUMP_SETTING);
+  count++;
+  success += sendCommand(cmd);
   count++;
 
   return success == count;
