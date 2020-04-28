@@ -93,6 +93,7 @@ class LCD {
   bool init();
   // Pixels displayed on screen
   bool sendData(const unsigned char* data, int size);
+  bool sendData(const unsigned char data);
   bool sendCommand(const unsigned char cmd);
   /*
     Because byte orientation in SSD1306 RAM is vertical, the normal orientation
@@ -106,6 +107,8 @@ class LCD {
   bool setWritingArea(int x, int y, int width, int height);
   bool setWritingArea(TextBox textBox);
   bool fillRectangle(int x, int y, int width, int height, bool color);
+  bool drawLine(unsigned char x1, unsigned char y1, unsigned char x2,
+                unsigned char y2, unsigned char width);
   bool print(TextBox textBox, const char* text);
   bool clearScreen();
   /*
@@ -128,7 +131,7 @@ class LCD {
     sets the way of memory addressing into one of the above three modes. In
     there, “COL” means the graphic display data RAM column.
   */
-  bool setMemoryAddressingMode(unsigned char mode = MEMORY_ADDRESSING_PAGE);
+  bool setMemoryAddressingMode(unsigned char mode = MEMORY_ADDRESSING_VERTICAL);
 
   /*
     This triple byte command specifies column start address and end address of
@@ -183,7 +186,7 @@ class LCD {
     entire display “ON” stage. A5h command forces the entire display to be “ON”,
     regardless of the contents of the display data RAM.
   */
-  bool entireDisplayOn(bool resumeRam = true);
+  bool entireDisplayOn(bool resumeRam = false);
 
   /*
     This command sets the display to be either normal or inverse. In normal
@@ -323,7 +326,7 @@ class LCD {
     block. This is a switching capacitor regulator circuit, designed for
     handheld applications.
   */
-  bool setChargePumpSetting(bool enableChargePump = false);
+  bool setChargePumpSetting(bool enableChargePump = true);
 
   // Width of LCD in pixels
   int lcdWidth();

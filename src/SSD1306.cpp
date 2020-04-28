@@ -34,6 +34,11 @@ bool SSD1306::LCD::sendData(const unsigned char* data, int size) {
   return true;
 }
 
+bool SSD1306::LCD::sendData(const unsigned char data) {
+    unsigned char msg[] = {DATA, data};
+    return i2c->send(i2cConfig, (char*)msg, sizeof(msg));
+}
+
 bool SSD1306::LCD::init() {
   if (i2c->init()) {
     int success = 0;
@@ -43,7 +48,7 @@ bool SSD1306::LCD::init() {
     // Initialization sequence
     success += turnOff();
     count++;
-    success += setMultiplexRatio();
+    success += setMultiplexRatio(width - 1);
     count++;
     success += setDisplayOffset();
     count++;
@@ -61,11 +66,11 @@ bool SSD1306::LCD::init() {
     count++;
     success += invert(false);
     count++;
-    success += setDisplayClock();
+    success += setDisplayClock(0, 8);
     count++;
-    success += setChargePumpSetting();
+    success += setChargePumpSetting(true);
     count++;
-    success += setMemoryAddressingMode();
+    success += setMemoryAddressingMode(MEMORY_ADDRESSING_VERTICAL);
     count++;
     success += clearScreen();
     count++;
@@ -165,6 +170,12 @@ bool SSD1306::LCD::fillRectangle(int x, int y, int width, int height,
   }
 
   return true;
+}
+
+bool drawLine(unsigned char x1, unsigned char y1, unsigned char x2,
+                unsigned char y2, unsigned char width) {
+  
+  return false;
 }
 
 bool SSD1306::LCD::print(TextBox textBox, const char* text) {
