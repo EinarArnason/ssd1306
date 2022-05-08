@@ -1,18 +1,14 @@
 # SSD1306 library
 
-Todo: description
-
 ## The What
 
-Todo: what is this
+C++ driver library for the SSD1306 OLED, optimized for speed.
 
 ## The Why
 
-Todo: why is this
+Due to the non-linear memory addressing of the SSD1306, fast writing is not straightforward. This library is an attempt to address the issue.
 
 ## The How
-
-Todo: how is this
 
 ### Using cmake
 
